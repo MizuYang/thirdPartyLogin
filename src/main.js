@@ -7,6 +7,9 @@ import 'bootstrap'
 
 import App from './App.vue'
 
+// firebase
+import '@/firebase/googleLogin.js'
+
 const pinia = createPinia()
 const app = createApp(App)
 

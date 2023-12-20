@@ -17,6 +17,14 @@
         </p>
         <p>{{ myUser.email }}</p>
         <p class="mt-10">上次登入時間為：{{ new Date(1702973223309).toLocaleString(+myUser.lastLoginAt) }}</p>
+
+        <div class="mt-10">
+          <button type='button'
+                  class='btn btn-primary'
+                  @click='logout'>
+            登出
+          </button>
+        </div>
       </template>
       <template v-else>
         <p class="text-gray text-center">尚未登入</p>
@@ -27,22 +35,27 @@
 
 <script setup>
 import { ref, onMounted } from 'vue'
-import { getAuth, signInWithPopup, GoogleAuthProvider } from 'firebase/auth'
+import { getAuth, signInWithPopup, GoogleAuthProvider, signInWithCustomToken, signOut } from 'firebase/auth' // eslint-disable-line
 
 // data
 const myUser = ref({})
 const myToken = ref('')
+const auth = ref('')
 
 onMounted(() => {
 })
 
+// function getToken() {
+
+// }
 function login () {
-  const auth = getAuth()
+  auth.value = getAuth()
   const providerGoogle = new GoogleAuthProvider()
   console.log(auth)
   console.log(providerGoogle)
 
-  signInWithPopup(auth, providerGoogle)
+  // 使用彈出視窗登入
+  signInWithPopup(auth.value, providerGoogle)
     .then((result) => {
       const credential = GoogleAuthProvider.credentialFromResult(result)
       const token = credential.accessToken
@@ -52,6 +65,7 @@ function login () {
       myToken.value = token
       myUser.value = user
       console.log(myUser.value)
+      setCookie()
     }).catch((error) => {
       const errorCode = error.code
       const errorMessage = error.message
@@ -62,6 +76,21 @@ function login () {
       console.error(`errorCode: ${errorCode}`)
       console.error(`credential: ${credential}`)
     })
+}
+function logout () {
+  signOut(auth.value)
+    .then(() => {
+      console.log('登出成功，將重新整理一次頁面！')
+      myUser.value = {}
+      myToken.value = ''
+      document.cookie = 'googleLoginToken='
+    })
+    .catch(e => {
+      console.log(JSON.stringify(e))
+    })
+}
+function setCookie () {
+  document.cookie = `googleLoginToken=${myToken.value}`
 }
 </script>
 

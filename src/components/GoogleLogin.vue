@@ -1,13 +1,16 @@
 <template>
   <div class="position-absolute-center border raduis-20 p-15">
-    <button type='button'
-            class='btn btn-primary'
-            @click='login'>
-      {{ myToken?'登出帳號':'登入 Google 帳號' }}
-    </button>
+    <h2 class="text-30 text-center fw-bold-7 mb-15">Google 登入</h2>
+    <div class="text-center">
+      <button type='button'
+              class='btn btn-primary'
+              @click='myUser.uid?logout():login()'>
+        {{ myUser.uid?'登出帳號':'登入 Google 帳號' }}
+      </button>
+    </div>
 
     <div class="mt-10">
-      <template v-if="myToken">
+      <template v-if="myUser.uid">
         <p>
           <img :src="myUser.photoURL"
                class="rounded-pill"
@@ -16,15 +19,7 @@
           {{ myUser.displayName }}
         </p>
         <p>{{ myUser.email }}</p>
-        <p class="mt-10">上次登入時間為：{{ new Date(1702973223309).toLocaleString(+myUser.lastLoginAt) }}</p>
-
-        <div class="mt-10">
-          <button type='button'
-                  class='btn btn-primary'
-                  @click='logout'>
-            登出
-          </button>
-        </div>
+        <p class="mt-10">上次登入時間為：{{ new Date(+myUser.lastLoginAt).toLocaleString() }}</p>
       </template>
       <template v-else>
         <p class="text-gray text-center">尚未登入</p>
@@ -35,19 +30,17 @@
 
 <script setup>
 import { ref, onMounted } from 'vue'
-import { getAuth, signInWithPopup, GoogleAuthProvider, signInWithCustomToken, signOut } from 'firebase/auth' // eslint-disable-line
+import { getAuth, signInWithPopup, GoogleAuthProvider, signOut } from 'firebase/auth'
 
 // data
 const myUser = ref({})
 const myToken = ref('')
 const auth = ref('')
 
-onMounted(() => {
+onMounted(async () => {
+  await checkUserLoginStatus()
 })
 
-// function getToken() {
-
-// }
 function login () {
   auth.value = getAuth()
   const providerGoogle = new GoogleAuthProvider()
@@ -58,14 +51,11 @@ function login () {
   signInWithPopup(auth.value, providerGoogle)
     .then((result) => {
       const credential = GoogleAuthProvider.credentialFromResult(result)
-      const token = credential.accessToken
-      const user = result.user
-      console.log(`token: ${token}`)
+      myToken.value = credential.accessToken
+      myUser.value = JSON.parse(JSON.stringify(result.user))
+      console.log(`token: ${myToken.value}`)
       console.log(`user: ${JSON.stringify(result.user, null, 2)}`)
-      myToken.value = token
-      myUser.value = user
       console.log(myUser.value)
-      setCookie()
     }).catch((error) => {
       const errorCode = error.code
       const errorMessage = error.message
@@ -80,17 +70,38 @@ function login () {
 function logout () {
   signOut(auth.value)
     .then(() => {
-      console.log('登出成功，將重新整理一次頁面！')
+      console.log('登出成功！')
       myUser.value = {}
       myToken.value = ''
-      document.cookie = 'googleLoginToken='
+      auth.value = ''
     })
     .catch(e => {
       console.log(JSON.stringify(e))
     })
 }
-function setCookie () {
-  document.cookie = `googleLoginToken=${myToken.value}`
+function checkUserLoginStatus () {
+  return new Promise((resolve, reject) => {
+    let checkCount = 20
+    auth.value = getAuth()
+    check()
+
+    function check () {
+      setTimeout(async () => {
+        const { currentUser } = JSON.parse(JSON.stringify(auth.value))
+
+        if (currentUser) {
+          // 用戶有登入紀錄
+          myUser.value = currentUser
+          console.log(JSON.stringify(currentUser, null, 2))
+          resolve()
+        } else {
+          checkCount--
+          // 若檢查登入狀態的次數用完後, 就不再呼叫 check()
+          if (checkCount > 0) check()
+        }
+      }, 100)
+    }
+  })
 }
 </script>
 

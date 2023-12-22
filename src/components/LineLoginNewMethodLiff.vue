@@ -57,7 +57,7 @@ onMounted(() => {
 //! Youtube: " #30 LIFF 更新啦 不用LINE也能開？ - v2 版本改動整理 " 解說 LIFF
 function liffInit () {
   liff.init({
-    liffId: '2002368530-LZo2Dbwd'
+    liffId: import.meta.env.VITE_APP_LINE_LIFF_ID
   }).then(async () => {
     console.log('開始使用 liff 的 api, liff: ', liff)
     // 開始使用 liff 的 api

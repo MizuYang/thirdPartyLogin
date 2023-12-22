@@ -65,24 +65,25 @@ function liffInit () {
 
     // 若是登入狀態才取得用戶資遜
     if (liff.isLoggedIn()) {
-      // console.log(await liff.getProfile())
+      console.log(await liff.getProfile())
       userInfo.value = await liff.getProfile()
     }
-
-    // 取得 LIFF 應用程式運行的環境
-    // console.log('取得使用的系統: ', liff.getOS())
-    // console.log('取得語系: ', liff.getLanguage())
-    // console.log('取得版本: ', liff.getVersion())
-    // console.log('是否透過 LIFF 瀏覽器開啟: ', liff.isInClient())
-    // console.log('是否登入: ', liff.isLoggedIn())
   }).catch((err) => {
     // liff 初始化失敗
     console.log('liff 初始化失敗', err)
   })
 }
 function liffLogin () {
+  const redirectUri = `
+  ${
+    import.meta.env.VITE_APP_MODE === 'development'
+    ? 'https://localhost:5174/thirdPartyLogin/' // 這裡必須使用 https 的 localhost 才行
+    : 'https://mizuyang.github.io/thirdPartyLogin/'
+  }
+`
+
   liff.login({
-    redirectUri: 'https://localhost:5174/thirdPartyLogin/'
+    redirect_uri: redirectUri
   })
 }
 function liffLogout () {

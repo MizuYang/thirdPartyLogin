@@ -1,11 +1,14 @@
 <template>
-  <div class="position-absolute-center border raduis-20"
-       style="transform:translate(150px,-120px);
-              padding:50px 40px;">
-    <h2 class="text-30 text-center fw-bold-7 mb-15">Line 登入</h2>
+  <!-- 舊的登入方法 -->
+  <div class="border raduis-20 p-15">
+    <h2 class="text-30 fw-bold-7 mb-10">Line 登入(舊)</h2>
+    <p class="pb-5">
+      <small>此方法只能取得用戶 Token, <br />
+        無法取抓用戶資訊</small>
+    </p>
     <!-- 按鈕 -->
-    <div class="btn line-logo"
-         @click='lineLogin'>
+    <div class="btn line-logo mx-auto"
+          @click='lineLogin'>
     </div>
     <div class="text-center">
       <button type='button'
@@ -18,11 +21,8 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue' // eslint-disable-line
-import axios from 'axios' // eslint-disable-line
-import { useRoute } from 'vue-router'
+import { onMounted } from 'vue'
 
-const route = useRoute()
 // yourClient_id 請設置為實際Channel ID 值
 const channelId = import.meta.env.VITE_APP_CHANNEL_ID
 
@@ -39,11 +39,9 @@ const redirectUri = `
 `
 
 onMounted(() => {
-  console.log(route)
-
   const urlParams = new URLSearchParams(window.location.search)
   const token = urlParams.get('code')
-  console.log(token)
+  if (token) console.log('token: ', token)
 })
 
 function lineLogin () {
@@ -62,6 +60,7 @@ function accessApp () {
 
   window.location.href = link
 }
+
 </script>
 
 <style lang="scss" scoped>

@@ -1,5 +1,5 @@
 <template>
-  <div class="position-absolute-center border raduis-20 p-15">
+  <div class="border raduis-20 p-15">
     <h2 class="text-30 text-center fw-bold-7 mb-15">Google 登入</h2>
     <div class="text-center">
       <button type='button'

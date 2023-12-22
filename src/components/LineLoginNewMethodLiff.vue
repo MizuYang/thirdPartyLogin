@@ -15,10 +15,19 @@
       </p>
     </div>
 
+    <template v-if="!isLoggedIn">
       <!-- 登入按鈕 -->
       <div class="btn line-logo mx-auto"
             @click='liffLogin'>
       </div>
+    </template>
+    <template v-else>
+      <button type='button'
+              class='btn btn-secondary'
+              @click='liffLogout'>
+        Liff 登出
+      </button>
+    </template>
   </div>
 </template>
 
@@ -57,6 +66,10 @@ function liffLogin () {
   liff.login({
     redirectUri: 'https://localhost:5174/thirdPartyLogin/'
   })
+}
+function liffLogout () {
+  liff.logout()
+  isLoggedIn.value = false
 }
 </script>
 

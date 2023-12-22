@@ -22,6 +22,7 @@
                alt="用戶頭貼" width="50">
           <p>{{ userInfo.displayName }}</p>
           <p>{{ userInfo.statusMessage }}</p>
+          <p>{{ userInfo.email }}</p>
         </div>
       </template>
     </div>
@@ -63,10 +64,16 @@ function liffInit () {
     // 開始使用 liff 的 api
     isLoggedIn.value = liff.isLoggedIn()
 
-    // 若是登入狀態才取得用戶資遜
+    // 若是登入狀態才取得用戶資訊
     if (liff.isLoggedIn()) {
       console.log(await liff.getProfile())
+      // 取得用戶名稱、狀態、大頭貼照片
       userInfo.value = await liff.getProfile()
+
+      // 取得用戶 email
+      const user = liff.getDecodedIDToken()
+      userInfo.value.email = user.email
+      console.log(user.email)
     }
   }).catch((err) => {
     // liff 初始化失敗

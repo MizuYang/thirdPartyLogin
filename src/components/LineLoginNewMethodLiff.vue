@@ -13,6 +13,17 @@
       <p :class="isLoggedIn?'text-success':'text-gray'">
         {{ isLoggedIn?'登入中':'未登入' }}
       </p>
+
+      <!-- 用戶資訊 -->
+      <template v-if='userInfo.userId'>
+        <div class="mt-10">
+          <img :src="userInfo.pictureUrl"
+               class="rounded-pill"
+               alt="用戶頭貼" width="50">
+          <p>{{ userInfo.displayName }}</p>
+          <p>{{ userInfo.statusMessage }}</p>
+        </div>
+      </template>
     </div>
 
     <template v-if="!isLoggedIn">
@@ -37,6 +48,7 @@ import liff from '@line/liff'
 
 // 登入狀態
 const isLoggedIn = ref(false)
+const userInfo = ref({})
 
 onMounted(() => {
   liffInit()
@@ -50,6 +62,12 @@ function liffInit () {
     console.log('開始使用 liff 的 api, liff: ', liff)
     // 開始使用 liff 的 api
     isLoggedIn.value = liff.isLoggedIn()
+
+    // 若是登入狀態才取得用戶資遜
+    if (liff.isLoggedIn()) {
+      // console.log(await liff.getProfile())
+      userInfo.value = await liff.getProfile()
+    }
 
     // 取得 LIFF 應用程式運行的環境
     // console.log('取得使用的系統: ', liff.getOS())
@@ -70,6 +88,7 @@ function liffLogin () {
 function liffLogout () {
   liff.logout()
   isLoggedIn.value = false
+  userInfo.value = {}
 }
 </script>
 
